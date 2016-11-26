@@ -28,6 +28,7 @@ import com.bitfire.utils.ShaderLoader;
 import io.anuke.ucore.UCore;
 import io.anuke.ucore.graphics.Hue;
 import io.anuke.ucore.graphics.PixmapUtils;
+import io.anuke.ucore.graphics.ShapeUtils;
 import io.anuke.ucore.noise.Noise;
 import io.anuke.usound.AudioPlayer;
 import io.anuke.utils.io.GifRecorder;
@@ -63,7 +64,8 @@ public class Mirage extends ApplicationAdapter{
 	boolean random = false;
 	float fadeout;
 	float hoff = 0f;
-
+	
+	
 	@Override
 	public void create(){
 		UCore.maximizeWindow();
@@ -92,8 +94,12 @@ public class Mirage extends ApplicationAdapter{
 		}
 
 		intmap.shuffle();
-
+		
+		ShapeUtils.region = new TextureRegion(colors);
+		ShapeUtils.thickness = 5f;
 		initshader();
+		
+		
 	}
 
 	void initshader(){
@@ -118,6 +124,7 @@ public class Mirage extends ApplicationAdapter{
 		postProcessor.capture();
 		draw();
 		postProcessor.render();
+		
 
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		batch.begin();
@@ -127,11 +134,14 @@ public class Mirage extends ApplicationAdapter{
 		batch.end();
 		camera.update();
 		doInput();
+		
+		
 	}
 
 	void initPixmap(){
 		for(int i = 0; i < 4; i++){
 			Color c = new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1);
+			//if(Math.random() < 0.3) c.set(0);
 			if(Math.random() < 0.33){
 				drawCircle(140 - i * 25, c);
 				drawCircle(130 - i * 25, c.sub(new Color(0.1f, 0.1f, 0.1f, 0f)));
@@ -150,6 +160,13 @@ public class Mirage extends ApplicationAdapter{
 		batch.begin();
 		batch.setProjectionMatrix(camera.combined);
 		float size = pixmap.getWidth();
+		
+		Color color = batch.getColor();
+		
+		batch.setColor(color.r, color.g, color.b, 0.1f);
+		batch.draw(region, -size, -size, size, size, size*2, size*2, 2, 2, -45);
+		
+		batch.setColor(color);
 		batch.draw(region, -size / 2, -size / 2, size / 2, size / 2, size, size, 2, 2, -45);
 		batch.draw(region, -size / 2 - 300, -size / 2 + 100, size / 2, size / 2, size, size, 2, 2, 0);
 		batch.draw(region, -size / 2 + 300, -size / 2 + 100, size / 2, size / 2, size, size, 2, 2, -90);
@@ -176,7 +193,7 @@ public class Mirage extends ApplicationAdapter{
 			float height = scale(avg(histoX, nb)) * (Noise.normalNoise(0, i, 6f, 3f) + 1f) * 1.3f;
 			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f), Hue.fromHSB(height / h, 1f, 1f),
 					(float) histoX / (bars / 2f)));
-			float bh = 4;
+			float bh = 6;
 			batch.draw(colors, 0, i * barWidth + bh / 2, height, bh, 0, 0, 16, 5, false, false);
 			batch.draw(colors, Gdx.graphics.getWidth(), i * barWidth + bh / 2, -height, bh, 0, 0, 16, 5, false, false);
 
@@ -198,7 +215,74 @@ public class Mirage extends ApplicationAdapter{
 			 * bh/2, -hejght, bh, 0, 0, 16, 5, false, false); }
 			 */
 		}
+		
+		for(int i = 0; i < bars; i++){
+			int histoX = bars / 2 - Math.abs(bars / 2 - i);
 
+			if(avg(histoX, nb) > maxValues[histoX]){
+				maxValues[histoX] = avg(histoX, nb);
+			}
+
+			if(avg(histoX, nb) > topValues[histoX]){
+				topValues[histoX] = avg(histoX, nb);
+			}
+
+			topValues[histoX] -= fallspeed;
+		}
+		
+		/*
+		float step = 360f/bars;
+		Vector2 vector = new Vector2();
+		for(int i = 0; i < bars; i++){
+			int histoX = bars / 2 - Math.abs(bars / 2 - i);
+
+			float height =  scale(avg(bars / 2 - Math.abs(bars / 2 - (i == -1 ? 0 : i)), nb));
+			
+			//float height2 = scale(avg(bars / 2 - Math.abs(bars / 2 - ((i == bars-1 ? bars-2 : i)+1)), nb));
+
+			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
+					Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
+
+			//batch.draw(colors, i * barWidth + barWidth/2 - 5f, 0, 10f, height*1.5f);
+			
+			vector.set(0, height*5);
+			vector.rotate(step*i + step/2);
+			float x1 = vector.x, y1 = vector.y;
+			vector.set(0, 900);
+			vector.rotate(step*i + step/2);
+			float x2 = vector.x, y2 = vector.y;
+			//vector.rotate(step);
+			//vector.setLength(height2);
+			//
+			ShapeUtils.line(batch, x1 + Gdx.graphics.getWidth()/2, y1 + Gdx.graphics.getHeight()/2, 
+					x2 + Gdx.graphics.getWidth()/2, y2 + Gdx.graphics.getHeight()/2);
+			
+			batch.setColor(Hue.fromHSB(height / 100 + 3f, 1f, 1f));
+
+		}
+		*/
+		/*
+		for(int i = -1; i < bars; i++){
+			int histoX = bars / 2 - Math.abs(bars / 2 - i);
+
+			float height =  scale(avg(bars / 2 - Math.abs(bars / 2 - (i == -1 ? 0 : i)), nb));
+			
+			float height2 = scale(avg(bars / 2 - Math.abs(bars / 2 - ((i == bars-1 ? bars-2 : i)+1)), nb));
+
+			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
+					Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
+
+			//batch.draw(colors, i * barWidth + barWidth/2 - 5f, 0, 10f, height*1.5f);
+			
+			ShapeUtils.line(batch, i * barWidth + barWidth/2, height, (i+1)*barWidth + barWidth/2, height2);
+			
+			batch.setColor(Hue.fromHSB(height / 100 + 3f, 1f, 1f));
+
+		}
+		*/
+		
+		
+		
 		for(int i = 0; i < bars; i++){
 			int histoX = bars / 2 - Math.abs(bars / 2 - i);
 
@@ -215,22 +299,27 @@ public class Mirage extends ApplicationAdapter{
 			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
 					Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
 
-			batch.draw(colors, i * barWidth, 0, barWidth, height, 0, 0, 16, 5, false, false);
+			batch.draw(colors, i * barWidth, 0, barWidth, height);
+			//int am = 4;
+			//for(int d = 0; d < am; d ++)
+				//batch.draw(colors, i * barWidth + barWidth/am*d, height, barWidth/am, 30 + (float)Math.sin(d-1.5f + height)*30f);
 
 			batch.setColor(Hue.fromHSB(height / 100 + 3f, 1f, 1f));
-			batch.draw(colors, i * barWidth, scale(topValues[histoX]), barWidth, 4, 0, 5, 16, 5, false, false);
+			//batch.draw(colors, i * barWidth, scale(topValues[histoX]), barWidth, 4, 0, 5, 16, 5, false, false);
 
 			topValues[histoX] -= fallspeed;
 		}
+		
 	}
 
 	private float scale(float x){
-		return 10f + (float) x * 3;
+		return 10f + (float) (float)Math.pow(x, 1.2f)*2f;// + Noise.normalNoise(0, (int)(x*4), 5f, 80f);
 	}
 
 	void clear(){
 		pixmap.setColor(0);
 		pixmap.fill();
+		
 		initPixmap();
 	}
 
@@ -318,7 +407,7 @@ public class Mirage extends ApplicationAdapter{
 		}
 
 		if(ys){
-			for(int i = 0; i < 5; i++){
+			for(int i = 0; i < 6; i++){
 				for(int x = 0; x < pixmap.getWidth(); x++){
 
 					for(int y = 0; y < pixmap.getHeight(); y++){
