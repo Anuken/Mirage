@@ -11,6 +11,7 @@ import io.anuke.Mirage.Mirage;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+		config.setDecorated(false);
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		config.setWindowedMode(d.width, d.height);
 		config.setTitle("Mirage");
