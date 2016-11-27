@@ -29,7 +29,6 @@ import io.anuke.ucore.UCore;
 import io.anuke.ucore.graphics.Hue;
 import io.anuke.ucore.graphics.PixmapUtils;
 import io.anuke.ucore.graphics.ShapeUtils;
-import io.anuke.ucore.noise.Noise;
 import io.anuke.usound.AudioPlayer;
 import io.anuke.utils.io.GifRecorder;
 
@@ -164,10 +163,12 @@ public class Mirage extends ApplicationAdapter{
 		
 		float size = pixmap.getWidth()/1.5f+heights[bars/2]/2f;
 		
-		Color color = batch.getColor();
+		Color color = batch.getColor().cpy();
 		
-		batch.setColor(color.r, color.g, color.b, 0.1f);
-		batch.draw(region, -size, -size, size, size, size*2, size*2, 2, 2, -45);
+		float tsize = pixmap.getWidth()/1.1f;
+		
+		batch.setColor(1f, 1f, 1f, 0.13f);
+		batch.draw(region, -tsize, -tsize, tsize, tsize, tsize*2, tsize*2, 2, 2, -45);
 		
 		float switchscl = 100;
 		float sw = (heights[0] > 100 ? 1f : 0);
@@ -219,30 +220,12 @@ public class Mirage extends ApplicationAdapter{
 
 			int histoX = i;
 
-			float height = scale(avg(histoX, nb)) * (Noise.normalNoise(0, i, 6f, 3f) + 1f) * 1.3f;
+			float height = scale(avg(histoX, nb));
 			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f), Hue.fromHSB(height / h, 1f, 1f),
 					(float) histoX / (bars / 2f)));
-			float bh = 6;
+			float bh = 0;
 			batch.draw(colors, 0, i * barWidth + bh / 2, height, bh, 0, 0, 16, 5, false, false);
 			batch.draw(colors, Gdx.graphics.getWidth(), i * barWidth + bh / 2, -height, bh, 0, 0, 16, 5, false, false);
-
-			/*
-			 * //bars on the bars yay for (int j = 0; j < bars; j++) { int hist
-			 * = j;
-			 * 
-			 * float space = height/bars;
-			 * 
-			 * float h2 = avg(hist, nb)-4;
-			 * batch.setColor(Hue.blend(Hue.fromHSB(-h2/70 + 0.1f, 1f, 1f),
-			 * Hue.fromHSB(h2/70, 1f, 1f), (float)hist/(bars/2f))); float wi =
-			 * 4; batch.draw(colors, j*space, i * barWidth + bh*1.5f, space, h2,
-			 * 0, 0, 1, 1, false, false); batch.draw(colors,
-			 * Gdx.graphics.getWidth() - j*space, i * barWidth + bh*1.5f,
-			 * -space, h2, 0, 0, 1, 1, false, false);
-			 * 
-			 * //batch.draw(colors, Gdx.graphics.getWidth(), j * barWidth +
-			 * bh/2, -hejght, bh, 0, 0, 16, 5, false, false); }
-			 */
 		}
 		
 		for(int i = 0; i < bars; i++){
@@ -260,59 +243,6 @@ public class Mirage extends ApplicationAdapter{
 			topValues[histoX] -= fallspeed;
 		}
 		
-		/*
-		float step = 360f/bars;
-		Vector2 vector = new Vector2();
-		for(int i = 0; i < bars; i++){
-			int histoX = bars / 2 - Math.abs(bars / 2 - i);
-
-			float height =  scale(avg(bars / 2 - Math.abs(bars / 2 - (i == -1 ? 0 : i)), nb));
-			
-			//float height2 = scale(avg(bars / 2 - Math.abs(bars / 2 - ((i == bars-1 ? bars-2 : i)+1)), nb));
-
-			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
-					Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
-
-			//batch.draw(colors, i * barWidth + barWidth/2 - 5f, 0, 10f, height*1.5f);
-			
-			vector.set(0, height*5);
-			vector.rotate(step*i + step/2);
-			float x1 = vector.x, y1 = vector.y;
-			vector.set(0, 900);
-			vector.rotate(step*i + step/2);
-			float x2 = vector.x, y2 = vector.y;
-			//vector.rotate(step);
-			//vector.setLength(height2);
-			//
-			ShapeUtils.line(batch, x1 + Gdx.graphics.getWidth()/2, y1 + Gdx.graphics.getHeight()/2, 
-					x2 + Gdx.graphics.getWidth()/2, y2 + Gdx.graphics.getHeight()/2);
-			
-			batch.setColor(Hue.fromHSB(height / 100 + 3f, 1f, 1f));
-
-		}
-		*/
-		/*
-		for(int i = -1; i < bars; i++){
-			int histoX = bars / 2 - Math.abs(bars / 2 - i);
-
-			float height =  scale(avg(bars / 2 - Math.abs(bars / 2 - (i == -1 ? 0 : i)), nb));
-			
-			float height2 = scale(avg(bars / 2 - Math.abs(bars / 2 - ((i == bars-1 ? bars-2 : i)+1)), nb));
-
-			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
-					Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
-
-			//batch.draw(colors, i * barWidth + barWidth/2 - 5f, 0, 10f, height*1.5f);
-			
-			ShapeUtils.line(batch, i * barWidth + barWidth/2, height, (i+1)*barWidth + barWidth/2, height2);
-			
-			batch.setColor(Hue.fromHSB(height / 100 + 3f, 1f, 1f));
-
-		}
-		*/
-		
-		
-		
 		for(int i = 0; i < bars; i++){
 			int histoX = bars / 2 - Math.abs(bars / 2 - i);
 
@@ -327,12 +257,8 @@ public class Mirage extends ApplicationAdapter{
 					Hue.fromHSB(-height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
 			
 			batch.draw(colors, i * barWidth, 0, barWidth, heights[bars -1 - Math.abs(i - bars/2)]);
-			//int am = 4;
-			//for(int d = 0; d < am; d ++)
-				//batch.draw(colors, i * barWidth + barWidth/am*d, height, barWidth/am, 30 + (float)Math.sin(d-1.5f + height)*30f);
 
 			batch.setColor(Hue.fromHSB(height / 100 + 3f, 0.5f, 1f));
-			//batch.draw(colors, i * barWidth, scale(topValues[histoX]), barWidth, 4, 0, 5, 16, 5, false, false);
 		}
 		
 	}
