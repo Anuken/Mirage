@@ -30,7 +30,6 @@ import io.anuke.ucore.graphics.Hue;
 import io.anuke.ucore.graphics.PixmapUtils;
 import io.anuke.ucore.graphics.ShapeUtils;
 import io.anuke.usound.AudioPlayer;
-import io.anuke.utils.io.GifRecorder;
 
 public class Mirage extends ApplicationAdapter{
 	SpriteBatch batch;
@@ -52,7 +51,7 @@ public class Mirage extends ApplicationAdapter{
 	Bloom bloom;
 	ShaderProgram shader;
 	PostProcessor postProcessor;
-	GifRecorder recorder;
+	//GifRecorder recorder;
 	AudioPlayer player;
 	float[] logs = new float[pixmapsize];
 	float[] barvals = new float[32];
@@ -79,8 +78,8 @@ public class Mirage extends ApplicationAdapter{
 		region = new TextureRegion(texture);
 		camera = new OrthographicCamera(Gdx.graphics.getWidth() / camscale, Gdx.graphics.getHeight() / camscale);
 		batch = new SpriteBatch();
-		recorder = new GifRecorder(batch);
-		recorder.setOpenKey(Keys.Y);
+		//recorder = new GifRecorder(batch);
+		//recorder.setOpenKey(Keys.Y);
 		colors = PixmapUtils.blankTexture();
 		player = new AudioPlayer(32);
 		player.playFile(Gdx.files.internal("music/fusion.mp3"));
@@ -133,7 +132,7 @@ public class Mirage extends ApplicationAdapter{
 
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		batch.begin();
-		recorder.update();
+		//recorder.update();
 		preDraw();
 		drawBars();
 		drawGUI();
