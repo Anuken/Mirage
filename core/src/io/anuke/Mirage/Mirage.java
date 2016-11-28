@@ -81,7 +81,7 @@ public class Mirage extends ApplicationAdapter{
 		// recorder.setOpenKey(Keys.Y);
 		colors = PixmapUtils.blankTexture();
 		player = new AudioPlayer(32);
-		player.playFile(Gdx.files.internal("music/fusion.mp3"));
+		player.playFile(Gdx.files.internal("music/rain.mp3"));
 
 		for(int i = 0; i < logs.length; i++)
 			logs[i] = (float) Math.log(i);
@@ -103,7 +103,7 @@ public class Mirage extends ApplicationAdapter{
 		ShaderLoader.BasePath = "shaders/";
 		postProcessor = new PostProcessor(false, false, true);
 		bloom = new Bloom((int) (Gdx.graphics.getWidth() * 0.25f), (int) (Gdx.graphics.getHeight() * 0.25f));
-		bloom.setBloomIntesity(2);
+		bloom.setBloomIntesity(3);
 		postProcessor.addEffect(bloom);
 		MotionBlur blur = new MotionBlur();
 		blur.setBlurOpacity(0.94f);
