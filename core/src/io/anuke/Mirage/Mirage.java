@@ -51,7 +51,7 @@ public class Mirage extends ApplicationAdapter{
 	Bloom bloom;
 	ShaderProgram shader;
 	PostProcessor postProcessor;
-	//GifRecorder recorder;
+	// GifRecorder recorder;
 	AudioPlayer player;
 	float[] logs = new float[pixmapsize];
 	float[] barvals = new float[32];
@@ -64,8 +64,7 @@ public class Mirage extends ApplicationAdapter{
 	float fadeout;
 	float hoff = 0f;
 	float[] heights = new float[bars];
-	
-	
+
 	@Override
 	public void create(){
 		UCore.maximizeWindow();
@@ -78,8 +77,8 @@ public class Mirage extends ApplicationAdapter{
 		region = new TextureRegion(texture);
 		camera = new OrthographicCamera(Gdx.graphics.getWidth() / camscale, Gdx.graphics.getHeight() / camscale);
 		batch = new SpriteBatch();
-		//recorder = new GifRecorder(batch);
-		//recorder.setOpenKey(Keys.Y);
+		// recorder = new GifRecorder(batch);
+		// recorder.setOpenKey(Keys.Y);
 		colors = PixmapUtils.blankTexture();
 		player = new AudioPlayer(32);
 		player.playFile(Gdx.files.internal("music/fusion.mp3"));
@@ -94,12 +93,10 @@ public class Mirage extends ApplicationAdapter{
 		}
 
 		intmap.shuffle();
-		
+
 		ShapeUtils.region = new TextureRegion(colors);
 		ShapeUtils.thickness = 5f;
 		initshader();
-		
-		
 	}
 
 	void initshader(){
@@ -120,19 +117,17 @@ public class Mirage extends ApplicationAdapter{
 			Gdx.app.exit();
 
 		UCore.clearScreen(Color.BLACK);
-		
-		
+
 		postProcessor.capture();
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		draw();
 		batch.end();
 		postProcessor.render();
-		
 
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		batch.begin();
-		//recorder.update();
+		// recorder.update();
 		preDraw();
 		drawBars();
 		drawGUI();
@@ -144,7 +139,7 @@ public class Mirage extends ApplicationAdapter{
 	void initPixmap(){
 		for(int i = 0; i < 4; i++){
 			Color c = new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1);
-			//if(Math.random() < 0.3) c.set(0);
+			// if(Math.random() < 0.3) c.set(0);
 			if(Math.random() < 0.33){
 				drawCircle(140 - i * 25, c);
 				drawCircle(130 - i * 25, c.sub(new Color(0.1f, 0.1f, 0.1f, 0f)));
@@ -159,27 +154,29 @@ public class Mirage extends ApplicationAdapter{
 	}
 
 	void draw(){
-		
-		float size = pixmap.getWidth()/1.5f+heights[bars/2]/2f;
-		
+
+		float size = pixmap.getWidth() / 1.5f + heights[bars / 2] / 2f;
+
 		Color color = batch.getColor().cpy();
-		
-		float tsize = pixmap.getWidth()/1.1f;
-		
+
+		float tsize = pixmap.getWidth() / 1.1f;
+
 		batch.setColor(1f, 1f, 1f, 0.13f);
-		batch.draw(region, -tsize, -tsize, tsize, tsize, tsize*2, tsize*2, 2, 2, -45);
-		
+		batch.draw(region, -tsize, -tsize, tsize, tsize, tsize * 2, tsize * 2, 2, 2, -45);
+
 		float switchscl = 100;
 		float sw = (heights[0] > 100 ? 1f : 0);
-		
+
 		batch.setColor(color);
-		batch.draw(region, -size / 2, -size / 2 + sw*(barswitch[0] ? -switchscl : switchscl), size / 2, size / 2, size, size, 2, 2, -45);
-		batch.draw(region, -size / 2 - 300, -size / 2 + 100  + sw*(barswitch[0] ? switchscl : -switchscl), size / 2, size / 2, size, size, 2, 2, 0);
-		batch.draw(region, -size / 2 + 300, -size / 2 + 100  + sw*(barswitch[0] ? switchscl : -switchscl), size / 2, size / 2, size, size, 2, 2, -90);
- 
-		
+		batch.draw(region, -size / 2, -size / 2 + sw * (barswitch[0] ? -switchscl : switchscl), size / 2, size / 2,
+				size, size, 2, 2, -45);
+		batch.draw(region, -size / 2 - 300, -size / 2 + 100 + sw * (barswitch[0] ? switchscl : -switchscl), size / 2,
+				size / 2, size, size, 2, 2, 0);
+		batch.draw(region, -size / 2 + 300, -size / 2 + 100 + sw * (barswitch[0] ? switchscl : -switchscl), size / 2,
+				size / 2, size, size, 2, 2, -90);
+
 	}
-	
+
 	void preDraw(){
 		float[] samples = player.spectrum;
 		int width = Gdx.graphics.getWidth();
@@ -188,16 +185,16 @@ public class Mirage extends ApplicationAdapter{
 		float barWidth = ((float) width / (float) bars);
 
 		int nb = (samples.length / bars) / 2;
-		
+
 		for(int i = 0; i < bars; i++){
 			int histoX = bars / 2 - Math.abs(bars / 2 - i);
 
-			float height = (float)Math.pow(scale(avg(histoX, nb)), 1.1f);
+			float height = (float) Math.pow(scale(avg(histoX, nb)), 1.1f);
 
 			batch.setColor(Hue.blend(Hue.fromHSB(height / width + 0.5f, 1f, 1f),
-					Hue.fromHSB(-height / h + hoff-0.5f, 1f, 1f), (float) histoX / (bars / 2f)));
+					Hue.fromHSB(-height / h + hoff - 0.5f, 1f, 1f), (float) histoX / (bars / 2f)));
 			Color color = batch.getColor();
-			//color.a = 0.1f;
+			// color.a = 0.1f;
 			batch.setColor(color);
 
 			batch.draw(colors, i * barWidth, 0, barWidth, height);
@@ -226,7 +223,7 @@ public class Mirage extends ApplicationAdapter{
 			batch.draw(colors, 0, i * barWidth + bh / 2, height, bh, 0, 0, 16, 5, false, false);
 			batch.draw(colors, Gdx.graphics.getWidth(), i * barWidth + bh / 2, -height, bh, 0, 0, 16, 5, false, false);
 		}
-		
+
 		for(int i = 0; i < bars; i++){
 			int histoX = bars / 2 - Math.abs(bars / 2 - i);
 			heights[i] = scale(avg(histoX, nb));
@@ -241,7 +238,7 @@ public class Mirage extends ApplicationAdapter{
 
 			topValues[histoX] -= fallspeed;
 		}
-		
+
 		for(int i = 0; i < bars; i++){
 			int histoX = bars / 2 - Math.abs(bars / 2 - i);
 
@@ -250,32 +247,33 @@ public class Mirage extends ApplicationAdapter{
 			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
 					Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
 
-			batch.draw(colors, i * barWidth, heights[bars -1 - Math.abs(i - bars/2)], barWidth, height);
-			
+			batch.draw(colors, i * barWidth, heights[bars - 1 - Math.abs(i - bars / 2)], barWidth, height);
+
 			batch.setColor(Hue.blend(Hue.fromHSB(height / width + 0.1f, 1f, 1f),
 					Hue.fromHSB(-height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
-			
-			batch.draw(colors, i * barWidth, 0, barWidth, heights[bars -1 - Math.abs(i - bars/2)]);
+
+			batch.draw(colors, i * barWidth, 0, barWidth, heights[bars - 1 - Math.abs(i - bars / 2)]);
 
 			batch.setColor(Hue.fromHSB(height / 100 + 3f, 0.5f, 1f));
 		}
-		
+
 	}
 
 	private float scale(float x){
-		return 10f + (float) (float)Math.pow(x, 1.2f)*1.2f;// + Noise.normalNoise(0, (int)(x*4), 5f, 80f);
+		return 10f + (float) (float) Math.pow(x, 1.2f) * 1.2f;
 	}
 
 	void clear(){
 		pixmap.setColor(0);
 		pixmap.fill();
-		
+
 		initPixmap();
 	}
 
 	void drawGUI(){
 		font.setColor(Color.WHITE);
-		//font.draw(batch, scale3 + " " + Gdx.graphics.getFramesPerSecond(), 0, 30);
+		// font.draw(batch, scale3 + " " + Gdx.graphics.getFramesPerSecond(), 0,
+		// 30);
 		font.setColor(Color.RED);
 
 		if(fadeout > 1){
@@ -291,6 +289,16 @@ public class Mirage extends ApplicationAdapter{
 	void doInput(){
 		if(Gdx.input.isKeyPressed(Keys.E)){
 			scale3 += 0.1f;
+		}
+
+		if(Gdx.input.isKeyJustPressed(Keys.INSERT)){
+			//player.pause();
+			//try{Thread.sleep(10);}catch (Exception e){}
+			
+			//if(Gdx.files.local("song.mp3").exists())
+			//	player.playFile(Gdx.files.local("song.mp3"));
+			//else if(Gdx.files.local("song.ogg").exists())
+			//	player.playFile(Gdx.files.local("song.ogg"));
 		}
 
 		if(Gdx.input.isKeyPressed(Keys.Q) && Gdx.input.isKeyPressed(Keys.W) && scale3 > 0){
@@ -326,14 +334,16 @@ public class Mirage extends ApplicationAdapter{
 
 		if(barvals[4] >= player.topValues[4] && barvals[4] > 20)
 			clear();
+		
+		scale3 += (flip ? 1 : -1) * barvals[31] / 500f;
 
-		scale3 += (flip ? 1 : -1) * barvals[3] / 500f;
-
-		if(barvals[31] >= player.topValues[31]){
+		if(barvals[3] >= player.topValues[31]){
 			if(!flip){
-				if(scale3 <= 10)flip = true;
+				if(scale3 <= 10)
+					flip = true;
 			}else{
-				if(scale3 >= 3)flip = false;
+				if(scale3 >= 3)
+					flip = false;
 			}
 		}
 
@@ -445,5 +455,9 @@ public class Mirage extends ApplicationAdapter{
 				pixmap.getHeight() / 2 - range / 2);
 		// pixmap.fillCircle(pixmap.getWidth() / 2, pixmap.getWidth() / 2, range
 		// / 2);
+	}
+	
+	public void dispose(){
+		player.dispose();
 	}
 }
