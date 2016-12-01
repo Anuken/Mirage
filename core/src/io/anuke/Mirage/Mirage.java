@@ -85,7 +85,7 @@ public class Mirage extends ApplicationAdapter{
 		// recorder.setOpenKey(Keys.Y);
 		colors = PixmapUtils.blankTexture();
 		player = new AudioPlayer(32);
-		player.playFile(Gdx.files.internal("music/evil.mp3"));
+		player.playFile(Gdx.files.internal("music/fusion.mp3"));
 
 		for(int i = 0; i < logs.length; i++)
 			logs[i] = (float) Math.log(i);
@@ -119,7 +119,6 @@ public class Mirage extends ApplicationAdapter{
 		blur = new MotionBlur();
 		blur.setBlurOpacity(0.94f);
 		processor.addEffect(blur);
-		
 		
 		processor.rebind();
 		barprocessor.rebind();
@@ -267,8 +266,10 @@ public class Mirage extends ApplicationAdapter{
 			int histoX = bars / 2 - Math.abs(bars / 2 - i);
 
 			float height = scale(avg(histoX, nb));
-			Color c = new Color(color(i)).mul(1.2f);
-			batch.setColor(c.r*mul.r, c.g*mul.g, c.b*mul.b, c.a);
+			
+			
+			batch.setColor(new Color(color(i)).mul(1.2f).mul(mul));
+			
 			//batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
 			//		Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
 
@@ -276,7 +277,9 @@ public class Mirage extends ApplicationAdapter{
 
 			//batch.setColor(Hue.blend(Hue.fromHSB(height / width + 0.1f, 1f, 1f),
 			//		Hue.fromHSB(-height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
-
+			
+			batch.setColor(new Color(color2(i)).mul(1.2f).mul(mul));
+			
 			batch.draw(colors, i * barWidth, 0, barWidth, heights[bars - 1 - Math.abs(i - bars / 2)]);
 
 			batch.setColor(Hue.fromHSB(height / 100 + 3f, 0.5f, 1f));
@@ -286,6 +289,12 @@ public class Mirage extends ApplicationAdapter{
 	
 	int color(int bar){
 		if(bar > bars/2) bar = bars-1 - bar;
+		return pixmap.getPixel((int)((float)bar/bars*pixmap.getWidth()), (int)((float)bar/bars*pixmap.getHeight()));
+	}
+	
+	int color2(int bar){
+		if(bar > bars/2) bar = bars-1 - bar;
+		bar = bars-1-bar;
 		return pixmap.getPixel((int)((float)bar/bars*pixmap.getWidth()), (int)((float)bar/bars*pixmap.getHeight()));
 	}
 
