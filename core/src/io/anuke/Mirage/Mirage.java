@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Blending;
@@ -49,8 +50,10 @@ public class Mirage extends ApplicationAdapter{
 	int bars = 31;
 	int frame;
 	Bloom bloom;
+	Bloom bloom2;
 	ShaderProgram shader;
-	PostProcessor postProcessor;
+	PostProcessor processor;
+	PostProcessor barprocessor;
 	// GifRecorder recorder;
 	AudioPlayer player;
 	float[] logs = new float[pixmapsize];
@@ -64,6 +67,7 @@ public class Mirage extends ApplicationAdapter{
 	float fadeout;
 	float hoff = 0f;
 	float[] heights = new float[bars];
+	MotionBlur blur;
 
 	@Override
 	public void create(){
@@ -81,7 +85,7 @@ public class Mirage extends ApplicationAdapter{
 		// recorder.setOpenKey(Keys.Y);
 		colors = PixmapUtils.blankTexture();
 		player = new AudioPlayer(32);
-		player.playFile(Gdx.files.internal("music/rain.mp3"));
+		player.playFile(Gdx.files.internal("music/evil.mp3"));
 
 		for(int i = 0; i < logs.length; i++)
 			logs[i] = (float) Math.log(i);
@@ -101,39 +105,57 @@ public class Mirage extends ApplicationAdapter{
 
 	void initshader(){
 		ShaderLoader.BasePath = "shaders/";
-		postProcessor = new PostProcessor(false, false, true);
+		processor = new PostProcessor(false, false, true);
+		barprocessor = new PostProcessor(false, false, true);
 		bloom = new Bloom((int) (Gdx.graphics.getWidth() * 0.25f), (int) (Gdx.graphics.getHeight() * 0.25f));
 		bloom.setBloomIntesity(3);
-		postProcessor.addEffect(bloom);
-		MotionBlur blur = new MotionBlur();
+		
+		bloom2 = new Bloom((int) (Gdx.graphics.getWidth() * 0.25f), (int) (Gdx.graphics.getHeight() * 0.25f));
+		bloom2.setBloomIntesity(3);
+		
+		processor.addEffect(bloom);
+		barprocessor.addEffect(bloom2);
+		
+		blur = new MotionBlur();
 		blur.setBlurOpacity(0.94f);
-		postProcessor.addEffect(blur);
-		postProcessor.rebind();
+		processor.addEffect(blur);
+		
+		
+		processor.rebind();
+		barprocessor.rebind();
 	}
 
 	@Override
 	public void render(){
 		if(Gdx.input.isKeyPressed(Keys.ESCAPE))
 			Gdx.app.exit();
-
+		
 		UCore.clearScreen(Color.BLACK);
-
-		postProcessor.capture();
+		
+		
+		batch.enableBlending();
+		processor.capture();
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		draw();
 		batch.end();
-		postProcessor.render();
-
+		processor.render();
+		
+		
+		bloom2.enableBlending(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_COLOR );
+		barprocessor.capture();
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		batch.begin();
-		// recorder.update();
 		preDraw();
 		drawBars();
 		drawGUI();
+		
 		batch.end();
 		camera.update();
 		doInput();
+		
+		barprocessor.render();
+		
 	}
 
 	void initPixmap(){
@@ -206,7 +228,6 @@ public class Mirage extends ApplicationAdapter{
 		float[] maxValues = player.maxValues;
 		float[] samples = player.spectrum;
 		int width = Gdx.graphics.getWidth();
-		int h = 480;
 
 		float barWidth = ((float) width / (float) bars);
 
@@ -217,8 +238,9 @@ public class Mirage extends ApplicationAdapter{
 			int histoX = i;
 
 			float height = scale(avg(histoX, nb));
-			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f), Hue.fromHSB(height / h, 1f, 1f),
-					(float) histoX / (bars / 2f)));
+			//batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f), Hue.fromHSB(height / h, 1f, 1f),
+			//		(float) histoX / (bars / 2f)));
+			batch.setColor(new Color(color(i)));
 			float bh = 0;
 			batch.draw(colors, 0, i * barWidth + bh / 2, height, bh, 0, 0, 16, 5, false, false);
 			batch.draw(colors, Gdx.graphics.getWidth(), i * barWidth + bh / 2, -height, bh, 0, 0, 16, 5, false, false);
@@ -238,25 +260,33 @@ public class Mirage extends ApplicationAdapter{
 
 			topValues[histoX] -= fallspeed;
 		}
+		
+		Color mul = (Hue.fromHSB(scale(avg(bars / 2 - Math.abs(bars / 2 - (bars-1)), nb)) / 100 + 3f, 0.5f, 1f));
 
 		for(int i = 0; i < bars; i++){
 			int histoX = bars / 2 - Math.abs(bars / 2 - i);
 
 			float height = scale(avg(histoX, nb));
-
-			batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
-					Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
+			Color c = new Color(color(i)).mul(1.2f);
+			batch.setColor(c.r*mul.r, c.g*mul.g, c.b*mul.b, c.a);
+			//batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
+			//		Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
 
 			batch.draw(colors, i * barWidth, heights[bars - 1 - Math.abs(i - bars / 2)], barWidth, height);
 
-			batch.setColor(Hue.blend(Hue.fromHSB(height / width + 0.1f, 1f, 1f),
-					Hue.fromHSB(-height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
+			//batch.setColor(Hue.blend(Hue.fromHSB(height / width + 0.1f, 1f, 1f),
+			//		Hue.fromHSB(-height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
 
 			batch.draw(colors, i * barWidth, 0, barWidth, heights[bars - 1 - Math.abs(i - bars / 2)]);
 
 			batch.setColor(Hue.fromHSB(height / 100 + 3f, 0.5f, 1f));
 		}
 
+	}
+	
+	int color(int bar){
+		if(bar > bars/2) bar = bars-1 - bar;
+		return pixmap.getPixel((int)((float)bar/bars*pixmap.getWidth()), (int)((float)bar/bars*pixmap.getHeight()));
 	}
 
 	private float scale(float x){
