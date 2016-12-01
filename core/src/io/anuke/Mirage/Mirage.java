@@ -68,7 +68,8 @@ public class Mirage extends ApplicationAdapter{
 	float hoff = 0f;
 	float[] heights = new float[bars];
 	MotionBlur blur;
-
+	boolean played = false;
+	
 	@Override
 	public void create(){
 		UCore.maximizeWindow();
@@ -85,7 +86,6 @@ public class Mirage extends ApplicationAdapter{
 		// recorder.setOpenKey(Keys.Y);
 		colors = PixmapUtils.blankTexture();
 		player = new AudioPlayer(32);
-		player.playFile(Gdx.files.internal("music/fusion.mp3"));
 
 		for(int i = 0; i < logs.length; i++)
 			logs[i] = (float) Math.log(i);
@@ -128,6 +128,11 @@ public class Mirage extends ApplicationAdapter{
 	public void render(){
 		if(Gdx.input.isKeyPressed(Keys.ESCAPE))
 			Gdx.app.exit();
+		
+		if(Gdx.input.isKeyJustPressed(Keys.INSERT) && !played){
+			player.playFile(Gdx.files.internal("music/fusion.mp3"));
+			played = true;
+		}
 		
 		UCore.clearScreen(Color.BLACK);
 		
@@ -430,7 +435,7 @@ public class Mirage extends ApplicationAdapter{
 			updatePixmap();
 		}
 
-		if(fadeout <= 0.00001f && !player.isPlaying()){
+		if(fadeout <= 0.00001f && !player.isPlaying() && played){
 			fadeout = 2f;
 		}
 
