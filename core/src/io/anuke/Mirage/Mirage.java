@@ -7,14 +7,9 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.Blending;
 import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.PixmapIO;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -72,7 +67,6 @@ public class Mirage extends ApplicationAdapter{
 	
 	@Override
 	public void create(){
-		UCore.maximizeWindow();
 		Gdx.input.setInputProcessor(input);
 		font = new BitmapFont(Gdx.files.internal("fonts/font.fnt"), Gdx.files.internal("fonts/font.png"), false);
 		pixmap = new Pixmap(pixmapsize, pixmapsize, Format.RGBA8888);
@@ -101,6 +95,10 @@ public class Mirage extends ApplicationAdapter{
 		ShapeUtils.region = new TextureRegion(colors);
 		ShapeUtils.thickness = 5f;
 		initshader();
+		
+
+		player.playFile(Gdx.files.internal("music/fusion.mp3"));
+		played = true;
 	}
 
 	void initshader(){
@@ -128,11 +126,6 @@ public class Mirage extends ApplicationAdapter{
 	public void render(){
 		if(Gdx.input.isKeyPressed(Keys.ESCAPE))
 			Gdx.app.exit();
-		
-		if(Gdx.input.isKeyJustPressed(Keys.INSERT) && !played){
-			player.playFile(Gdx.files.internal("music/fusion.mp3"));
-			played = true;
-		}
 		
 		UCore.clearScreen(Color.BLACK);
 		
