@@ -28,6 +28,7 @@ import io.anuke.ucore.graphics.ShapeUtils;
 import io.anuke.usound.AudioPlayer;
 
 public class Mirage extends ApplicationAdapter{
+	public static Mirage i;
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	BitmapFont font;
@@ -64,9 +65,11 @@ public class Mirage extends ApplicationAdapter{
 	float[] heights = new float[bars];
 	MotionBlur blur;
 	boolean played = false;
+	Theme theme = Theme.festive;
 	
 	@Override
 	public void create(){
+		i=this;
 		Gdx.input.setInputProcessor(input);
 		font = new BitmapFont(Gdx.files.internal("fonts/font.fnt"), Gdx.files.internal("fonts/font.png"), false);
 		pixmap = new Pixmap(pixmapsize, pixmapsize, Format.RGBA8888);
@@ -97,7 +100,7 @@ public class Mirage extends ApplicationAdapter{
 		initshader();
 		
 
-		player.playFile(Gdx.files.internal("music/fusion.mp3"));
+		player.playFile(Gdx.files.internal("music/inside.mp3"));
 		played = true;
 	}
 
@@ -120,6 +123,9 @@ public class Mirage extends ApplicationAdapter{
 		
 		processor.rebind();
 		barprocessor.rebind();
+		
+		processor.setClearColor(theme.clearColor);
+		theme.config(bloom, blur);
 	}
 
 	@Override
@@ -128,7 +134,6 @@ public class Mirage extends ApplicationAdapter{
 			Gdx.app.exit();
 		
 		UCore.clearScreen(Color.BLACK);
-		
 		
 		batch.enableBlending();
 		processor.capture();
@@ -156,6 +161,10 @@ public class Mirage extends ApplicationAdapter{
 	}
 
 	void initPixmap(){
+		Theme.m = this;
+		theme.drawPixmap();
+		
+		/*
 		for(int i = 0; i < 4; i++){
 			Color c = new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1);
 			// if(Math.random() < 0.3) c.set(0);
@@ -170,6 +179,7 @@ public class Mirage extends ApplicationAdapter{
 				drawRect(130 - i * 25, c.sub(new Color(0.1f, 0.1f, 0.1f, 0f)));
 			}
 		}
+		*/
 	}
 
 	void draw(){
@@ -328,16 +338,6 @@ public class Mirage extends ApplicationAdapter{
 			scale3 += 0.1f;
 		}
 
-		if(Gdx.input.isKeyJustPressed(Keys.INSERT)){
-			//player.pause();
-			//try{Thread.sleep(10);}catch (Exception e){}
-			
-			//if(Gdx.files.local("song.mp3").exists())
-			//	player.playFile(Gdx.files.local("song.mp3"));
-			//else if(Gdx.files.local("song.ogg").exists())
-			//	player.playFile(Gdx.files.local("song.ogg"));
-		}
-
 		if(Gdx.input.isKeyPressed(Keys.Q) && Gdx.input.isKeyPressed(Keys.W) && scale3 > 0){
 			scale3 -= 1f;
 		}
@@ -469,13 +469,16 @@ public class Mirage extends ApplicationAdapter{
 			return false;
 		}
 	};
-
-	void drawSquare(int range, Color c){
-		pixmap.setColor(c);
-		pixmap.fillRectangle(pixmap.getWidth() / 2 - range / 2, pixmap.getWidth() / 2 - range / 2, range, range);
+	
+	void drawRand(int size, Color c){
+		if(Math.random() < 0.5){
+			drawSquare(size, c);
+		}else{
+			drawCircle(size, c);
+		}
 	}
 
-	void drawRect(int range, Color c){
+	void drawSquare(int range, Color c){
 		pixmap.setColor(c);
 		pixmap.fillRectangle(pixmap.getWidth() / 2 - range / 2, pixmap.getWidth() / 2 - range / 2, range, range);
 	}
