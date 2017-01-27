@@ -50,7 +50,6 @@ public class Mirage extends ApplicationAdapter{
 	ShaderProgram shader;
 	PostProcessor processor;
 	PostProcessor barprocessor;
-	// GifRecorder recorder;
 	AudioPlayer player;
 	float[] logs = new float[pixmapsize];
 	float[] barvals = new float[32];
@@ -65,7 +64,8 @@ public class Mirage extends ApplicationAdapter{
 	float[] heights = new float[bars];
 	MotionBlur blur;
 	boolean played = false;
-	Theme theme = Theme.festive;
+	Theme theme = Theme.normal;
+	// GifRecorder recorder;
 	
 	@Override
 	public void create(){
@@ -74,13 +74,16 @@ public class Mirage extends ApplicationAdapter{
 		font = new BitmapFont(Gdx.files.internal("fonts/font.fnt"), Gdx.files.internal("fonts/font.png"), false);
 		pixmap = new Pixmap(pixmapsize, pixmapsize, Format.RGBA8888);
 		Pixmap.setBlending(Blending.None);
-		initPixmap();
+		theme.drawPixmap();
+		
 		texture = new Texture(pixmap);
 		region = new TextureRegion(texture);
 		camera = new OrthographicCamera(Gdx.graphics.getWidth() / camscale, Gdx.graphics.getHeight() / camscale);
 		batch = new SpriteBatch();
+		
 		// recorder = new GifRecorder(batch);
 		// recorder.setOpenKey(Keys.Y);
+		
 		colors = PixmapUtils.blankTexture();
 		player = new AudioPlayer(32);
 
@@ -160,28 +163,6 @@ public class Mirage extends ApplicationAdapter{
 		
 	}
 
-	void initPixmap(){
-		Theme.m = this;
-		theme.drawPixmap();
-		
-		/*
-		for(int i = 0; i < 4; i++){
-			Color c = new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1);
-			// if(Math.random() < 0.3) c.set(0);
-			if(Math.random() < 0.33){
-				drawCircle(140 - i * 25, c);
-				drawCircle(130 - i * 25, c.sub(new Color(0.1f, 0.1f, 0.1f, 0f)));
-			}else if(Math.random() < 0.66){
-				drawSquare(140 - i * 25, c);
-				drawSquare(130 - i * 25, c.sub(new Color(0.1f, 0.1f, 0.1f, 0f)));
-			}else{
-				drawRect(140 - i * 25, c);
-				drawRect(130 - i * 25, c.sub(new Color(0.1f, 0.1f, 0.1f, 0f)));
-			}
-		}
-		*/
-	}
-
 	void draw(){
 
 		float size = pixmap.getWidth() / 1.5f + heights[bars / 2] / 2f;
@@ -223,7 +204,7 @@ public class Mirage extends ApplicationAdapter{
 			batch.setColor(Hue.blend(Hue.fromHSB(height / width + 0.5f, 1f, 1f),
 					Hue.fromHSB(-height / h + hoff - 0.5f, 1f, 1f), (float) histoX / (bars / 2f)));
 			Color color = batch.getColor();
-			// color.a = 0.1f;
+
 			batch.setColor(color);
 
 			batch.draw(colors, i * barWidth, 0, barWidth, height);
@@ -245,8 +226,6 @@ public class Mirage extends ApplicationAdapter{
 			int histoX = i;
 
 			float height = scale(avg(histoX, nb));
-			//batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f), Hue.fromHSB(height / h, 1f, 1f),
-			//		(float) histoX / (bars / 2f)));
 			batch.setColor(new Color(color(i)));
 			float bh = 0;
 			batch.draw(colors, 0, i * barWidth + bh / 2, height, bh, 0, 0, 16, 5, false, false);
@@ -277,14 +256,8 @@ public class Mirage extends ApplicationAdapter{
 			
 			
 			batch.setColor(new Color(color(i)).mul(1.2f).mul(mul));
-			
-			//batch.setColor(Hue.blend(Hue.fromHSB(-height / width + 0.1f, 1f, 1f),
-			//		Hue.fromHSB(height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
 
 			batch.draw(colors, i * barWidth, heights[bars - 1 - Math.abs(i - bars / 2)], barWidth, height);
-
-			//batch.setColor(Hue.blend(Hue.fromHSB(height / width + 0.1f, 1f, 1f),
-			//		Hue.fromHSB(-height / h + hoff, 1f, 1f), (float) histoX / (bars / 2f)));
 			
 			batch.setColor(new Color(color2(i)).mul(1.2f).mul(mul));
 			
@@ -314,13 +287,11 @@ public class Mirage extends ApplicationAdapter{
 		pixmap.setColor(0);
 		pixmap.fill();
 
-		initPixmap();
+		theme.drawPixmap();
 	}
 
 	void drawGUI(){
 		font.setColor(Color.WHITE);
-		// font.draw(batch, scale3 + " " + Gdx.graphics.getFramesPerSecond(), 0,
-		// 30);
 		font.setColor(Color.RED);
 
 		if(fadeout > 1){
@@ -393,11 +364,6 @@ public class Mirage extends ApplicationAdapter{
 			if(Math.random() < 0.3)
 				clear();
 		}
-
-		// if(barvals[8] >= player.topValues[8]){
-		// bloom.setBaseSaturation(barvals[8]/40f);
-
-		// }
 
 		if(barvals[0] > 1f && Gdx.graphics.getFrameId() % 2 == 0){
 			ys = true;
@@ -486,15 +452,6 @@ public class Mirage extends ApplicationAdapter{
 	void drawCircle(int range, Color c){
 		pixmap.setColor(c);
 		pixmap.fillCircle(pixmap.getWidth() / 2, pixmap.getWidth() / 2, range / 2);
-	}
-
-	void drawTriangle(int range, Color c){
-		pixmap.setColor(c);
-		pixmap.fillTriangle(pixmap.getHeight() / 2 - range / 2, pixmap.getWidth() / 2 - range / 2,
-				pixmap.getWidth() / 2, pixmap.getHeight() / 2 + range / 2, pixmap.getWidth() / 2 + range / 2,
-				pixmap.getHeight() / 2 - range / 2);
-		// pixmap.fillCircle(pixmap.getWidth() / 2, pixmap.getWidth() / 2, range
-		// / 2);
 	}
 	
 	public void dispose(){

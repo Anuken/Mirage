@@ -16,9 +16,9 @@ public enum Theme{
 		
 		public void drawPixmap(){
 			for(int i = 0; i < 4; i++){
-				Color c = colors[MathUtils.random(4)].cpy();//new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1);
-				m.drawRand(140 - i * 25, c);
-				m.drawRand(130 - i * 25, c.sub(0.1f, 0.1f, 0.1f, 0f));
+				Color c = colors[MathUtils.random(4)].cpy();
+				Mirage.i.drawRand(140 - i * 25, c);
+				Mirage.i.drawRand(130 - i * 25, c.sub(0.1f, 0.1f, 0.1f, 0f));
 			}
 		}
 		
@@ -28,13 +28,12 @@ public enum Theme{
 		}
 	};
 	public Color clearColor = Color.BLACK;
-	public static Mirage m = Mirage.i;
 	
 	public void drawPixmap(){
 		for(int i = 0; i < 4; i++){
 			Color c = new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1);
-			m.drawRand(140 - i * 25, c);
-			m.drawRand(130 - i * 25, c.sub(0.1f, 0.1f, 0.1f, 0f));
+			Mirage.i.drawRand(140 - i * 25, c);
+			Mirage.i.drawRand(130 - i * 25, c.sub(0.1f, 0.1f, 0.1f, 0f));
 		}
 	}
 	
