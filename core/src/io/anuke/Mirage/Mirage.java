@@ -121,7 +121,7 @@ public class Mirage extends ApplicationAdapter{
 		barprocessor.addEffect(bloom2);
 		
 		blur = new MotionBlur();
-		blur.setBlurOpacity(0.94f);
+		//blur.setBlurOpacity(0.94f);
 		processor.addEffect(blur);
 		
 		processor.rebind();
@@ -201,7 +201,7 @@ public class Mirage extends ApplicationAdapter{
 
 			float height = (float) Math.pow(scale(avg(histoX, nb)), 1.1f);
 
-			batch.setColor(Hue.blend(Hue.fromHSB(height / width + 0.5f, 1f, 1f),
+			batch.setColor(Hue.mix(Hue.fromHSB(height / width + 0.5f, 1f, 1f),
 					Hue.fromHSB(-height / h + hoff - 0.5f, 1f, 1f), (float) histoX / (bars / 2f)));
 			Color color = batch.getColor();
 
