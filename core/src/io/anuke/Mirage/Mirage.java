@@ -21,11 +21,10 @@ import com.bitfire.postprocessing.effects.Bloom;
 import com.bitfire.postprocessing.effects.MotionBlur;
 import com.bitfire.utils.ShaderLoader;
 
-import io.anuke.ucore.UCore;
 import io.anuke.ucore.graphics.Hue;
-import io.anuke.ucore.graphics.PixmapUtils;
-import io.anuke.ucore.graphics.ShapeUtils;
-import io.anuke.usound.AudioPlayer;
+import io.anuke.ucore.graphics.Pixmaps;
+import io.anuke.ucore.util.Mathf;
+import io.anuke.Mirage.*;
 
 public class Mirage extends ApplicationAdapter{
 	public static Mirage i;
@@ -84,7 +83,7 @@ public class Mirage extends ApplicationAdapter{
 		// recorder = new GifRecorder(batch);
 		// recorder.setOpenKey(Keys.Y);
 		
-		colors = PixmapUtils.blankTexture();
+		colors = Pixmaps.blankTexture();
 		player = new AudioPlayer(32);
 
 		for(int i = 0; i < logs.length; i++)
@@ -97,13 +96,10 @@ public class Mirage extends ApplicationAdapter{
 		}
 
 		intmap.shuffle();
-
-		ShapeUtils.region = new TextureRegion(colors);
-		ShapeUtils.thickness = 5f;
 		initshader();
 		
 
-		player.playFile(Gdx.files.internal("music/inside.mp3"));
+		player.playFile(Gdx.files.internal("music/pj.mp3"));
 		played = true;
 	}
 
@@ -121,7 +117,7 @@ public class Mirage extends ApplicationAdapter{
 		barprocessor.addEffect(bloom2);
 		
 		blur = new MotionBlur();
-		//blur.setBlurOpacity(0.94f);
+		blur.setBlurOpacity(0.94f);
 		processor.addEffect(blur);
 		
 		processor.rebind();
@@ -136,7 +132,8 @@ public class Mirage extends ApplicationAdapter{
 		if(Gdx.input.isKeyPressed(Keys.ESCAPE))
 			Gdx.app.exit();
 		
-		UCore.clearScreen(Color.BLACK);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
 		batch.enableBlending();
 		processor.capture();
@@ -145,7 +142,6 @@ public class Mirage extends ApplicationAdapter{
 		draw();
 		batch.end();
 		processor.render();
-		
 		
 		bloom2.enableBlending(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_COLOR );
 		barprocessor.capture();
@@ -299,7 +295,7 @@ public class Mirage extends ApplicationAdapter{
 		}
 
 		if(fadeout > 0){
-			batch.setColor(0, 0, 0, UCore.clamp(1f - (fadeout - 1f)));
+			batch.setColor(0, 0, 0, Mathf.clamp(1f - (fadeout - 1f)));
 			batch.draw(colors, 0, 0, Gdx.graphics.getWidth() * 10, Gdx.graphics.getHeight() * 10);
 		}
 	}
